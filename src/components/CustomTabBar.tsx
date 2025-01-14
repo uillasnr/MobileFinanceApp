@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Animated, TouchableOpacity, Easing } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { Vibration } from "react-native";
 
 interface CustomTabBarProps {
   isExpanded: boolean;
@@ -44,6 +45,7 @@ export function CustomTabBar({ isExpanded, onToggle }: CustomTabBarProps) {
   };
 
   const handlePress = () => {
+    Vibration.vibrate(50);
     const newState = !isExpanded;
   
     Animated.sequence([
@@ -74,16 +76,19 @@ export function CustomTabBar({ isExpanded, onToggle }: CustomTabBarProps) {
   
 
   const navigateToExpense = () => {
+    Vibration.vibrate(25);
     resetButtons();
-    navigation.navigate("create-expenses", { type: "expense" });
+    navigation.navigate("create-transaction", { type: "expense" });
   };
 
   const navigateToIncome = () => {
+    Vibration.vibrate(25);
     resetButtons();
-    navigation.navigate("create-income", { type: "income" });
+    navigation.navigate("create-transaction", { type: "income" });
   };
 
   const navigateToTransfer = () => {
+    Vibration.vibrate(25);
     resetButtons();
     navigation.navigate("transactions", { type: "transfer" });
   };
@@ -207,7 +212,7 @@ export function CustomTabBar({ isExpanded, onToggle }: CustomTabBarProps) {
   return (
     <View style={styles.container}>
       <Animated.View
-        style={[styles.circle, transferTransform, { backgroundColor: "#4CAF50" }]}
+        style={[styles.circle, transferTransform, { backgroundColor:  "#2196F3"}]}
       >
         <TouchableOpacity onPress={navigateToTransfer}>
           <AntDesign name="swap" size={25} color="#FFFFFF" />
@@ -218,7 +223,7 @@ export function CustomTabBar({ isExpanded, onToggle }: CustomTabBarProps) {
       </Animated.View>
 
       <Animated.View
-        style={[styles.circle, incomeTransform, { backgroundColor: "#2196F3" }]}
+        style={[styles.circle, incomeTransform, { backgroundColor: "#4CAF50" }]}
       >
         <TouchableOpacity onPress={navigateToIncome}>
           <AntDesign name="plus" size={25} color="#FFFFFF" />
