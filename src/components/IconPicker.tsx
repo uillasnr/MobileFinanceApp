@@ -64,11 +64,18 @@ export default function IconPicker({
     setIsVisible(false);
   };
 
+  const screenWidth = Dimensions.get("window").width;
+  const iconSize = screenWidth * 0.1; // Tamanho do ícone baseado na largura da tela
+  const iconSpacing = screenWidth * 0.02; // Espaçamento entre os ícones
+
   // Converter o objeto de ícones em um array para o FlatList
   const iconsList = Object.entries(expoIcons).map(([key, value]) => ({
     key,
     ...value,
   }));
+
+  // Calcular número de colunas
+  const numColumns = Math.floor(screenWidth / (iconSize + iconSpacing));
 
   return (
     <>
@@ -111,46 +118,40 @@ export default function IconPicker({
               style={{
                 backgroundColor: "#334155",
                 borderRadius: 12,
-                padding: 15,
-                width: Dimensions.get("window").width - 40,
-                maxHeight: Dimensions.get("window").height * 0.7,
+                padding: 12,
+                width: screenWidth - 40,
+                maxHeight: Dimensions.get("window").height * 0.8,
               }}
             >
               <FlatList
                 data={iconsList}
                 keyExtractor={(item) => item.key}
-                numColumns={4}
+                key={numColumns.toString()} // Alterar chave quando o número de colunas mudar
+                numColumns={numColumns} // Número de colunas dinâmico
                 renderItem={({ item }) => (
                   <TouchableOpacity
                     onPress={() =>
                       handleSelectIcon(item.key as keyof typeof expoIcons)
                     }
                     style={{
-                      flex: 1,
                       alignItems: "center",
-                      margin: 8,
-                      padding: 10,
-                      borderRadius: 10,
+                      justifyContent: "center",
+                      width: iconSize,
+                      height: iconSize,
+                      margin: iconSpacing / 2,
+                      borderRadius: iconSize / 2,
                       backgroundColor:
-                        selectedIcon === item.key ? "#1F2937" : "#475569",
+                        selectedIcon === item.key ? "" : "#475569",
+                      borderColor:
+                        item.key === selectedIcon ? "#FFFFFF" : "#333",
+                      borderWidth: item.key === selectedIcon ? 4 : 1,
                     }}
                   >
                     {renderIconByType(
                       { type: item.type, name: item.name },
-                      30,
+                      iconSize * 0.5,
                       selectedIcon === item.key ? "#FFFFFF" : "#E2E8F0"
                     )}
-                    <Text
-                      style={{
-                        marginTop: 5,
-                        color: "#FFFFFF",
-                        fontSize: 12,
-                        textAlign: "center",
-                      }}
-                      numberOfLines={1}
-                    >
-                      {item.key}
-                    </Text>
                   </TouchableOpacity>
                 )}
               />
