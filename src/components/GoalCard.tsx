@@ -39,7 +39,7 @@ export default function GoalCard({ goal, onEdit }: GoalCardProps) {
         <View
           style={{
             width: `${calculateProgress()}%`,
-            backgroundColor: calculateProgress() >= 100 ? "#4CAF50" : "#9333EA",
+            backgroundColor: calculateProgress() >= 100 ? "#4CAF50" : "#6200ee",
           }}
           className="h-full rounded-sm "
         />
