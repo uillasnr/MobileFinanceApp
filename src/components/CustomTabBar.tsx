@@ -3,6 +3,7 @@ import { View, StyleSheet, Animated, TouchableOpacity, Easing } from "react-nati
 import { AntDesign } from "@expo/vector-icons";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { Vibration } from "react-native";
+import { useRouter } from "expo-router";
 
 interface CustomTabBarProps {
   isExpanded: boolean;
@@ -14,6 +15,7 @@ export function CustomTabBar({ isExpanded, onToggle }: CustomTabBarProps) {
   const mode = new Animated.Value(modeValue);
   const buttonSize = new Animated.Value(1);
   const navigation: NavigationProp<any> = useNavigation();
+  const router = useRouter();
 
   useEffect(() => {
     Animated.timing(mode, {
@@ -78,13 +80,13 @@ export function CustomTabBar({ isExpanded, onToggle }: CustomTabBarProps) {
   const navigateToExpense = () => {
     Vibration.vibrate(25);
     resetButtons();
-    navigation.navigate("create-transaction", { type: "expense" });
+    router.push({ pathname: "/(auth)/create-transaction", params: { type: "expense" } });
   };
 
   const navigateToIncome = () => {
     Vibration.vibrate(25);
     resetButtons();
-    navigation.navigate("create-transaction", { type: "income" });
+    router.push({ pathname: "/(auth)/create-transaction", params: { type: "income" } });
   };
 
   const navigateToTransfer = () => {
