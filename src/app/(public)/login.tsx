@@ -16,12 +16,18 @@ import { Ionicons } from "@expo/vector-icons";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@/src/Validators/schemas";
-import { Auth } from "@/src/types/auth";
-
+import { Auth, LoginData } from "@/src/types";
+import { login } from "@/src/services/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Loading from "@/src/components/loading";
+import { SaveUser } from "@/src/storage/storage_user";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
+
   const {
     handleSubmit,
     setValue,
@@ -34,17 +40,31 @@ export default function Login() {
     },
   });
 
-  async function handleLogin(data: Auth) {
+  async function handleLogin(data: LoginData) {
     try {
-      console.log("Login data:", data);
-      router.push("/(tabs)/home");
-    } catch (e) {
-      console.log(e);
+      setIsLoading(true);
+      setErrorMessage("");
+  
+      const response = await login(data.email, data.password);
+  
+      setTimeout(async () => {
+        if (response?.token) {
+          await AsyncStorage.setItem("token", response.token);
+          await SaveUser({ ...response.user });
+  
+          router.push("/(tabs)/home");
+        }
+        setIsLoading(false);
+      }, 2000);
+    } catch (error: any) {
+      setErrorMessage("E-mail ou senha incorretos. Tente novamente.");
+      setIsLoading(false);
     }
   }
 
   return (
     <SafeAreaView className="flex-1 bg-background-dark">
+      <Loading visible={isLoading} />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
@@ -55,7 +75,6 @@ export default function Login() {
           keyboardShouldPersistTaps="handled"
         >
           <View className="min-h-full justify-center items-center px-6 py-8">
-            {/* Header Section */}
             <View className="items-center mb-6 ">
               <Image
                 source={require("../../../assets/images/logo.png")}
@@ -70,9 +89,13 @@ export default function Login() {
               </Text>
             </View>
 
-            {/* Form Container */}
+            {errorMessage && (
+              <Text className="text-red-500 text-sm mt-2 mb-2 text-center">
+                {errorMessage}
+              </Text>
+            )}
+
             <View className="w-full max-w-md p-2">
-              {/* Email Input */}
               <View className="mb-6">
                 <TextInput
                   className="w-full bg-card-dark border h-14 rounded-xl border-gray-500 text-text-light pl-3"
@@ -89,7 +112,6 @@ export default function Login() {
                 )}
               </View>
 
-              {/* Password Input */}
               <View className="mb-6">
                 <View className="relative">
                   <TextInput
@@ -117,7 +139,6 @@ export default function Login() {
                 )}
               </View>
 
-              {/* Login Button */}
               <TouchableOpacity
                 onPress={handleSubmit(handleLogin)}
                 className="bg-[#6200ee] p-3 rounded-xl shadow-sm mb-4"
@@ -127,20 +148,20 @@ export default function Login() {
                 </Text>
               </TouchableOpacity>
 
-              {/* Register Link */}
               <Link href="/register" asChild>
                 <Pressable>
                   <Text className="text-center text-gray-500">
-                    Não tem uma conta? <Text className="font-bold">Cadastre-se</Text>
+                    Não tem uma conta?{" "}
+                    <Text className="font-bold">Cadastre-se</Text>
                   </Text>
                 </Pressable>
               </Link>
             </View>
 
             <Text className="text-gray-500 text-xs text-center mt-8 px-6">
-          Seus dados financeiros estão protegidos com criptografia de ponta a ponta
-        </Text>
-      
+              Seus dados financeiros estão protegidos com criptografia de ponta
+              a ponta
+            </Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
