@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Animated, TouchableOpacity, Easing } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
-import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { Vibration } from "react-native";
 import { useRouter } from "expo-router";
 
@@ -14,7 +13,6 @@ export function CustomTabBar({ isExpanded, onToggle }: CustomTabBarProps) {
   const [modeValue, setModeValue] = useState(0);
   const mode = new Animated.Value(modeValue);
   const buttonSize = new Animated.Value(1);
-  const navigation: NavigationProp<any> = useNavigation();
   const router = useRouter();
 
   useEffect(() => {
@@ -92,7 +90,7 @@ export function CustomTabBar({ isExpanded, onToggle }: CustomTabBarProps) {
   const navigateToTransfer = () => {
     Vibration.vibrate(25);
     resetButtons();
-    navigation.navigate("transactions", { type: "transfer" });
+    router.push({ pathname: "/(tabs)/transactions" });
   };
 
   const rotation = mode.interpolate({
