@@ -1,40 +1,36 @@
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, TouchableOpacity, ScrollView, Vibration } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import GoalCard from "@/src/components/GoalCard";
 import GoalSheet from "@/src/components/GoalSheet";
+import { getGoalTracking } from "@/src/services/api";
+import { GoalTrackingProps } from "@/src/types/GoalTracking";
 
-
-type Goal = {
-  id?: number;
-  name: string;
-  currentAmount: number;
-  targetAmount: number;
-  deadline: string;
-};
 
 export default function GoalTracking()  {
-  const [goals, setGoals] = useState<Goal[]>([
-     {
-      id: 1,
-      name: "Fundo de Emergência",
-      currentAmount: 2500,
-      targetAmount: 5000, //final da meta
-      deadline: "2024-12-31",
-    },
-    {
-      id: 2,
-      name: "Viagem de Férias",
-      currentAmount: 1200,
-      targetAmount: 3000,
-      deadline: "2024-07-15",
-    }, 
-  ]);
-
-  const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
+  const [goals, setGoals] = useState<GoalTrackingProps[]>([]);
+  const [loading, setLoading] = useState(true); // Estado para indicar carregamento
+  const [selectedGoal, setSelectedGoal] = useState<GoalTrackingProps | null>(null);
   const [isSheetVisible, setSheetVisible] = useState(false);
 
-  const addGoal = (newGoal: Goal) => {
+  useEffect(() => {
+    const fetchGoals = async () => {
+      try {
+        setLoading(true);
+        const response = await getGoalTracking();
+        setGoals(response); // Atualiza o estado com os dados da API
+      } catch (error) {
+        console.error("Erro ao buscar metas:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGoals();
+  }, []);
+
+
+  const addGoal = (newGoal: GoalTrackingProps) => {
     const goalToAdd = {
       ...newGoal,
       id: goals.length + 1,
@@ -44,14 +40,14 @@ export default function GoalTracking()  {
     setGoals([...goals, goalToAdd]);
   };
 
-  const updateGoal = (updatedGoal: Goal) => {
+  const updateGoal = (updatedGoal: GoalTrackingProps) => {
     const updatedGoals = goals.map((goal) =>
-      goal.id === updatedGoal.id ? updatedGoal : goal
+      goal._id === updatedGoal._id ? updatedGoal : goal
     );
     setGoals(updatedGoals);
   };
 
-  const handleSave = (goal: Goal) => {
+  const handleSave = (goal: GoalTrackingProps) => {
     if (selectedGoal) {
       updateGoal(goal);
     } else {
@@ -60,6 +56,17 @@ export default function GoalTracking()  {
     setSheetVisible(false);
     setSelectedGoal(null);
   };
+
+
+  const handlePress = () => {
+    Vibration.vibrate(100); 
+    setSheetVisible(true);
+  };
+
+  const deleteGoal = (goalId: string) => {
+    setGoals((prevGoals) => prevGoals.filter((goal) => goal._id !== goalId));
+  };
+  
 
 
   return (
@@ -82,9 +89,9 @@ export default function GoalTracking()  {
             <Text className="text-white font-subtitle  text-sm">Sem metas cadastradas ainda</Text>
           </View>
         ) : (
-          goals.map((goal) => (
+          goals.map((goal, index) => (
             <GoalCard
-              key={goal.id}
+            key={goal._id ?? `goal-${index}`}
               goal={goal}
               onEdit={() => {
                 setSelectedGoal(goal);
@@ -96,7 +103,7 @@ export default function GoalTracking()  {
       </ScrollView>
 
       <TouchableOpacity
-        onPress={() => setSheetVisible(true)}
+       onPress={handlePress}
         className="absolute bottom-28 right-6 bg-[#6200ee] opacity-90 w-14 h-14 rounded-full flex items-center justify-center shadow-lg"
       >
         <Ionicons name="add" size={32} color="#FFF" />
@@ -107,6 +114,7 @@ export default function GoalTracking()  {
         goal={selectedGoal}
         onClose={() => setSheetVisible(false)}
         onSave={handleSave}
+        onDelete={deleteGoal}
       />
     </View>
   );
