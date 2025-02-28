@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
-import { MaterialIcons, Ionicons, AntDesign, Entypo } from "@expo/vector-icons";
+import { Ionicons, AntDesign, Entypo } from "@expo/vector-icons";
 
 type Goal = {
   id?: number;
@@ -21,7 +21,7 @@ export default function GoalCard({ goal, onEdit }: GoalCardProps) {
   };
 
   return (
-    <View className="bg-card-dark rounded-lg p-4 m-4 shadow-lg">
+    <View className="bg-card-dark rounded-lg p-4 mx-4 mb-3 shadow-lg">
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center  mb-3 flex-grow">
           <Entypo name="pin" size={20} color="#E2E8F0" />
