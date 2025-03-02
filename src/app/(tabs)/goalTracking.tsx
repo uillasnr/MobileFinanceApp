@@ -1,24 +1,36 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView, Vibration } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  Vibration,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import GoalCard from "@/src/components/GoalCard";
 import GoalSheet from "@/src/components/GoalSheet";
 import { getGoalTracking } from "@/src/services/api";
-import { GoalTrackingProps } from "@/src/types/GoalTracking";
 
+import Loading from "@/src/components/loading";
+import { GoalTrackingProps } from "@/src/types/goalTracking";
+import { RefreshControl } from "react-native";
 
-export default function GoalTracking()  {
+export default function GoalTracking() {
   const [goals, setGoals] = useState<GoalTrackingProps[]>([]);
-  const [loading, setLoading] = useState(true); // Estado para indicar carregamento
-  const [selectedGoal, setSelectedGoal] = useState<GoalTrackingProps | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedGoal, setSelectedGoal] = useState<GoalTrackingProps | null>(
+    null
+  );
   const [isSheetVisible, setSheetVisible] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     const fetchGoals = async () => {
       try {
         setLoading(true);
         const response = await getGoalTracking();
-        setGoals(response); // Atualiza o estado com os dados da API
+        setGoals(response);
+       
       } catch (error) {
         console.error("Erro ao buscar metas:", error);
       } finally {
@@ -28,7 +40,6 @@ export default function GoalTracking()  {
 
     fetchGoals();
   }, []);
-
 
   const addGoal = (newGoal: GoalTrackingProps) => {
     const goalToAdd = {
@@ -57,21 +68,28 @@ export default function GoalTracking()  {
     setSelectedGoal(null);
   };
 
-
   const handlePress = () => {
-    Vibration.vibrate(100); 
+    Vibration.vibrate(100);
     setSheetVisible(true);
+    setSelectedGoal(null);
   };
 
   const deleteGoal = (goalId: string) => {
     setGoals((prevGoals) => prevGoals.filter((goal) => goal._id !== goalId));
   };
-  
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+   
+    } finally {
+      setTimeout(() => setRefreshing(false), 1000);
+    }
+  };
 
   return (
     <View className="flex-1 bg-background-dark pt-3">
-
+      <Loading visible={loading} />
       <View className="p-5 rounded-b-lg shadow-xl">
         <Text className="text-white font-bold text-xl">Metas Financeiras</Text>
         <Text className="text-sm font-body text-white mt-2">
@@ -82,16 +100,22 @@ export default function GoalTracking()  {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 80, flexGrow: 1 }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       >
-        {goals.length === 0 ? (
+        {loading ? (
+          <View className="flex-1 justify-center items-center"></View>
+        ) : goals.length === 0 ? (
           <View className="flex-1 justify-center items-center">
-          
-            <Text className="text-white font-subtitle  text-sm">Sem metas cadastradas ainda</Text>
+            <Text className="text-white font-subtitle  text-sm">
+              Sem metas cadastradas ainda
+            </Text>
           </View>
         ) : (
           goals.map((goal, index) => (
             <GoalCard
-            key={goal._id ?? `goal-${index}`}
+              key={goal._id ?? `goal-${index}`}
               goal={goal}
               onEdit={() => {
                 setSelectedGoal(goal);
@@ -103,7 +127,7 @@ export default function GoalTracking()  {
       </ScrollView>
 
       <TouchableOpacity
-       onPress={handlePress}
+        onPress={handlePress}
         className="absolute bottom-28 right-6 bg-[#6200ee] opacity-90 w-14 h-14 rounded-full flex items-center justify-center shadow-lg"
       >
         <Ionicons name="add" size={32} color="#FFF" />
@@ -118,6 +142,4 @@ export default function GoalTracking()  {
       />
     </View>
   );
-};
-
-
+}
