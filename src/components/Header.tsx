@@ -5,6 +5,7 @@ import { Link } from "expo-router";
 import { useEffect, useState } from "react";
 import { getDashboard } from "../services/api";
 import { BalanceProps } from "../types/balance";
+import { formatCurrency } from "../utils/format-currency";
 
 interface HeaderProps {
   onMonthChange: (month: number, year: number) => void;
@@ -21,7 +22,7 @@ export default function Header({ onMonthChange }: HeaderProps) {
         setBalanceData(fetchedDashboard.balance);
     
       } catch (error) {
-        console.error("Erro ao buscar dados da API:", error);
+        console.error("Erro ao buscar dados da API: Header", error);
       }
     };
     fetchData();
@@ -49,7 +50,7 @@ export default function Header({ onMonthChange }: HeaderProps) {
       <View className="justify-center items-center">
         <Text className="text-text-light text-base font-subtitle">Saldo em conta</Text>
         <Text className="text-text-light text-lg font-bold mt-0.5">
-        R$ {balanceData ? (balanceData.balance / 100).toFixed(2) : "0,00"}
+           {formatCurrency(balanceData ? balanceData.balance : 0)}
         </Text>
       </View>
 
@@ -61,7 +62,7 @@ export default function Header({ onMonthChange }: HeaderProps) {
           <View className="flex-col justify-center items-start ml-2">
             <Text className="text-green-600 text-base font-body">Receita</Text>
             <Text className="text-green-600 text-base font-body">
-            R$ {balanceData ? (balanceData.incomes / 100).toFixed(2) : "0,00"}
+            {formatCurrency(balanceData ? balanceData.incomes : 0)}
             </Text>
           </View>
         </View>
@@ -73,7 +74,7 @@ export default function Header({ onMonthChange }: HeaderProps) {
           <View className="flex-col justify-center items-start ml-2">
             <Text className="text-red-600 text-base font-body">Despesas</Text>
             <Text className="text-red-600 text-base font-body">
-            R$ {balanceData ? (Math.abs(balanceData.expenses) / 100).toFixed(2) : "0,00"}
+            {formatCurrency(balanceData ? balanceData.expenses : 0)}
             </Text>
           </View>
         </View>
