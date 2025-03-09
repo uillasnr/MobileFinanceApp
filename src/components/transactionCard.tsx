@@ -2,6 +2,7 @@ import React from "react";
 import { Text, View } from "react-native";
 import { TransactionCardProps } from "../types/transaction";
 import { AntDesign, SimpleLineIcons } from "@expo/vector-icons";
+import { formatCurrency } from "../utils/format-currency";
 
 export default function TransactionCard({
   title,
@@ -33,8 +34,8 @@ export default function TransactionCard({
       <View>
         <Text className={`text-base font-bold text-right ${TextColor}`}>
           {amount < 0
-            ? `-R$ ${Math.abs(amount).toFixed(2)}`
-            : `R$ ${amount.toFixed(2)}`}
+            ? `-${formatCurrency(Math.abs(amount))}`
+            : `${formatCurrency(amount)}`}
         </Text>
         <View className="flex-row items-center gap-2 justify-end pr-1">
           <AntDesign name="pushpino" size={13} color="#E2E8F0" />
