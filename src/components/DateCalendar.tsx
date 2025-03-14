@@ -58,7 +58,9 @@ export default function DateCalendar({ selectedDate, onDateSelect }: DateCalenda
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={() => setIsCalendarVisible(true)}>
-        <Text style={styles.input}>{displayedDate}</Text>
+      <Text style={displayedDate === "Selecione uma data" ? styles.placeholderText : styles.input}>
+          {displayedDate}
+        </Text>
       </TouchableOpacity>
 
       <Modal
@@ -122,7 +124,12 @@ const styles = StyleSheet.create({
     color: '#E2E8F0',
     fontSize: 16,
   },
-
+  placeholderText: {
+    paddingVertical: 15,
+    paddingLeft: 22,
+    color: '#A1A1AA', 
+    fontSize: 16,
+  },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
