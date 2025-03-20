@@ -1,5 +1,12 @@
 import React from "react";
-import { View, Text, ScrollView, TouchableOpacity, Dimensions } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Dimensions,
+} from "react-native";
+import { formatCurrency } from "../utils/format-currency";
 
 const { height } = Dimensions.get("window");
 
@@ -23,12 +30,12 @@ export default function CategoryList({
   selectedColor,
   onCategoryPress,
 }: CategoryListProps) {
-
-  const categoriesfiltere = filteredData.filter(category => category.value > 0);
+  const categoriesfiltere = filteredData.filter(
+    (category) => category.value > 0
+  );
 
   return (
     <View style={{ height: height * 0.5, padding: 10 }}>
-      
       <ScrollView showsVerticalScrollIndicator={false} className="py-2">
         {categoriesfiltere.map((category) => (
           <TouchableOpacity
@@ -52,7 +59,7 @@ export default function CategoryList({
                         : category.color,
                   }}
                 />
-                <Text 
+                <Text
                   className={`text-sm font-bold text-text-light ${
                     selectedCategory === category.id ? "" : "opacity-70"
                   }`}
@@ -60,14 +67,12 @@ export default function CategoryList({
                   {category.label}
                 </Text>
               </View>
-              <Text 
+              <Text
                 className={`text-base font-bold text-text-light ${
                   selectedCategory === category.id ? "" : "opacity-70"
                 }`}
               >
-                R$ {category.value.toLocaleString("pt-BR", {
-                  minimumFractionDigits: 2,
-                })}
+                {formatCurrency(category.value)}
               </Text>
             </View>
           </TouchableOpacity>
