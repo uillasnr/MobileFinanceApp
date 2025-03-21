@@ -15,26 +15,47 @@ import Loading from "@/src/components/loading";
 
 type Section = { title: string; data: TransactionProps[] };
 const groupTransactionsByMonth = (transactions: TransactionProps[]) => {
-  const grouped: Section[] = []; // Tipagem adicionada aqui
+    const grouped: Section[] = [];
     const months: { [key: string]: TransactionProps[] } = {};
 
     transactions.forEach((transaction: TransactionProps) => {
         const transactionDate = new Date(transaction.date);
-        const month = transactionDate.toLocaleString("pt-BR", {
+        const monthNumber = transactionDate.getMonth(); // Mês numérico (0-11)
+        const year = transactionDate.getFullYear();
+
+        const monthLabel = transactionDate.toLocaleString("pt-BR", {
             month: "long",
             year: "numeric",
         });
 
-        if (!months[month]) months[month] = [];
-        months[month].push(transaction);
+        if (!months[monthLabel]) months[monthLabel] = [];
+        months[monthLabel].push(transaction);
     });
 
-    for (const [month, data] of Object.entries(months)) {
-        grouped.push({ title: month, data });
-    }
+    // Converter para array e ordenar
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
 
-    return grouped;
+    const sortedMonths = Object.entries(months)
+        .map(([title, data]) => {
+            const firstTransactionDate = new Date(data[0].date);
+            return {
+                title,
+                data,
+                year: firstTransactionDate.getFullYear(),
+                month: firstTransactionDate.getMonth(),
+            };
+        })
+        .sort((a, b) => {
+            if (a.year === currentYear && a.month === currentMonth) return -1; // Prioriza o mês atual
+            if (b.year === currentYear && b.month === currentMonth) return 1;
+            if (a.year !== b.year) return b.year - a.year; // Ordena por ano decrescente
+            return b.month - a.month; // Ordena por mês decrescente
+        });
+
+    return sortedMonths;
 };
+
 
 export default function Transactions() {
     const [allTransactions, setAllTransactions] = useState<TransactionProps[]>([]);
@@ -83,6 +104,7 @@ export default function Transactions() {
                 );
             });
         }
+        console.log(transactionsToFilter)
         return groupTransactionsByMonth(transactionsToFilter);
     }, [allTransactions, selectedMonth, selectedYear]);
 
@@ -99,7 +121,8 @@ export default function Transactions() {
                             <TransactionCard
                                 title={item.title}
                                 category={item.categoryId}
-                                amount={item.amount}
+                                amount={item.type === "expense" ? -Math.abs(item.amount) : Math.abs(item.amount)}
+                                type={item.type}
                             />
                         </TouchableOpacity>
                     )}
