@@ -1,10 +1,5 @@
 import React, { useMemo, useRef } from "react";
-import {
-  Dimensions,
-  Text,
-  TouchableWithoutFeedback,
-  View,
-} from "react-native";
+import { Dimensions, Text, TouchableWithoutFeedback, View } from "react-native";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import {
   MaterialCommunityIcons,
@@ -18,6 +13,7 @@ import { TransactionProps } from "../types/transaction";
 import formatDate from "../utils/formatDate";
 const screenHeight = Dimensions.get("window").height;
 import { Link } from "expo-router";
+import { formatCurrency } from "../utils/format-currency";
 
 interface DetailsTransactionProps {
   selectedTransaction: TransactionProps | null;
@@ -36,6 +32,7 @@ export default function DetailsTransaction({
   const buttonColor =
     selectedTransaction?.type === "expense" ? "#F87171" : "#34D399";
 
+/*   console.log("dethales da transção", selectedTransaction); */
   return (
     <TouchableWithoutFeedback onPress={onClose} accessible={false}>
       <View
@@ -97,9 +94,17 @@ export default function DetailsTransaction({
                       style={{ backgroundColor: buttonColor }}
                       className="w-12 h-12 rounded-full items-center justify-center mb-1"
                     >
-                      <Feather name="trending-up" size={24} color="white" />
+                      {selectedTransaction.type === "income" ? (
+                        <Feather name="trending-up" size={24} color="white" />
+                      ) : (
+                        <Feather name="trending-down" size={24} color="white" />
+                      )}
                     </View>
-                    <Text className="text-text-light">Receita</Text>
+                    <Text className="text-text-light">
+                      {selectedTransaction.type === "expense"
+                        ? "Despesa"
+                        : "Receita"}
+                    </Text>
                   </View>
 
                   {/* Anexo */}
@@ -112,16 +117,24 @@ export default function DetailsTransaction({
 
                   {/* Favorita */}
                   <View className="items-center">
-                    <View className="w-12 h-12 bg-gray-600 rounded-full items-center justify-center mb-1">
+                    <View
+                      style={
+                        selectedTransaction?.isFixed
+                          ? { backgroundColor: buttonColor }
+                          : {}
+                      }
+                      className="w-12 h-12 bg-gray-600 rounded-full items-center justify-center mb-1"
+                    >
                       <MaterialCommunityIcons
                         name="heart-outline"
                         size={24}
                         color="white"
                       />
                     </View>
-                    <Text className="text-text-light">Favorita</Text>
+                    <Text className="text-text-light">Despesa Fixa</Text>
                   </View>
                 </View>
+
                 <View className="h-px bg-gray-300 w-full" />
 
                 <View className="space-y-4 ">
@@ -141,7 +154,10 @@ export default function DetailsTransaction({
                           <Text className="text-text-light text-xs">
                             Descrição:
                           </Text>
-                          <Text className="text-text-light text-base">
+                          <Text
+                            numberOfLines={1}
+                            className="text-text-light text-base truncate max-w-[200px]"
+                          >
                             {selectedTransaction.title}
                           </Text>
                         </View>
@@ -160,7 +176,7 @@ export default function DetailsTransaction({
                             Valor:
                           </Text>
                           <Text className="text-text-light text-base">
-                            R$ {selectedTransaction.amount.toFixed(2)}
+                            {formatCurrency(selectedTransaction.amount)}
                           </Text>
                         </View>
                       </View>
@@ -193,7 +209,10 @@ export default function DetailsTransaction({
                           <Text className="text-text-light text-xs">
                             Observação:
                           </Text>
-                          <Text className="text-text-light text-base">
+                          <Text
+                            numberOfLines={2}
+                            className="text-text-light text-base truncate "
+                          >
                             {selectedTransaction.observation || "Nenhuma"}
                           </Text>
                         </View>
@@ -231,7 +250,7 @@ export default function DetailsTransaction({
                             Categoria:
                           </Text>
                           <Text className="text-text-light text-base">
-                            {selectedTransaction.category}
+                            {selectedTransaction.category.title}
                           </Text>
                         </View>
                       </View>
@@ -259,7 +278,7 @@ export default function DetailsTransaction({
 
                 {/* ✏️ Botão de Edição */}
                 <Link
-                  href={`/edit-transaction?transactionId=${selectedTransaction.id}`}
+                  href={`/edit-transaction?transactionId=${selectedTransaction._id}`}
                 >
                   <View
                     style={{ backgroundColor: buttonColor }}
